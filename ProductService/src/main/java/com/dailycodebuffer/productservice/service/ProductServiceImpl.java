@@ -1,6 +1,7 @@
 package com.dailycodebuffer.productservice.service;
 
 import com.dailycodebuffer.productservice.entity.Product;
+import com.dailycodebuffer.productservice.exception.ProductServiceCustomException;
 import com.dailycodebuffer.productservice.model.ProductRequest;
 import com.dailycodebuffer.productservice.model.ProductResponse;
 import com.dailycodebuffer.productservice.repository.ProductRepository;
@@ -35,7 +36,7 @@ public class ProductServiceImpl implements ProductService{
     public ProductResponse getProductById(long productId) {
         log.info("Get the Product for productId : {}" , productId);
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product with given id not found"));
+                .orElseThrow(() -> new ProductServiceCustomException("Product with given id not found" , "PRODUCT_NOT_FOUND"));
 
         ProductResponse productResponse = new ProductResponse();
         copyProperties(product , productResponse);
