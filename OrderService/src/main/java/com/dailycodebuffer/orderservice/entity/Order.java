@@ -22,7 +22,7 @@ public class Order {
     @Column(name = "QUANTITY")
     private long quantity;
     @Column(name = "ORDER_DATE")
-    private Instant orderData;
+    private Instant orderDate;
     @Column(name = "ORDER_STATUS")
     private String orderStatus;
     @Column(name = "TOTAL_AMOUNT")
