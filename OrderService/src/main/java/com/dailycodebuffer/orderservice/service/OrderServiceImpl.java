@@ -1,6 +1,7 @@
 package com.dailycodebuffer.orderservice.service;
 
 import com.dailycodebuffer.orderservice.entity.Order;
+import com.dailycodebuffer.orderservice.external.client.ProductService;
 import com.dailycodebuffer.orderservice.model.OrderRequest;
 import com.dailycodebuffer.orderservice.repository.OrderRepository;
 import lombok.extern.log4j.Log4j2;
@@ -14,6 +15,10 @@ import java.time.Instant;
 public class OrderServiceImpl implements OrderService{
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private ProductService productService;
+
     @Override
     public long placeOrder(OrderRequest orderRequest) {
         // OrderEntity -> save the data with status order Created
@@ -21,6 +26,8 @@ public class OrderServiceImpl implements OrderService{
         // PaymentService -? Complete the payment -> SUCESS -> complete or cancelled
 
         log.info("Placing Order request : {}" , orderRequest);
+        productService.reduceQuantity(orderRequest.getProductId() , orderRequest.getQuantity()); // feign se kiya ye
+        log.info("Created Order with status CREATED");
         Order order = Order.builder()
                 .amount(orderRequest.getTotalAmount())
                 .orderStatus("CREATED")
