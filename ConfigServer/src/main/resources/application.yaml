@@ -7,9 +7,16 @@ spring:
   cloud:
     config:
       server:
-        git:
-          uri: https://github.com/Karthikey-Sharma/spring-app-config
-          clone-on-start: true
+#        git:
+#          uri: https://github.com/Karthikey-Sharma/spring-app-config
+#          clone-on-start: true
+          git:
+            uri: https://github.com/Karthikey-Sharma/spring-app-config
+            # 1. Added explicit branch (usually 'main' for new GitHub repos)
+            default-label: main
+            # 2. Added search paths if your files are in a subfolder (like 'config-folder')
+            # search-paths: '{application}'
+            clone-on-start: true
   eureka:
     client:
       fetch-registry: true
