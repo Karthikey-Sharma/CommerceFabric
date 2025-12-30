@@ -1,7 +1,9 @@
 package com.dailycodebuffer.orderservice.service;
 
 import com.dailycodebuffer.orderservice.entity.Order;
+import com.dailycodebuffer.orderservice.external.client.PaymentService;
 import com.dailycodebuffer.orderservice.external.client.ProductService;
+import com.dailycodebuffer.orderservice.external.request.PaymentRequest;
 import com.dailycodebuffer.orderservice.model.OrderRequest;
 import com.dailycodebuffer.orderservice.repository.OrderRepository;
 import lombok.extern.log4j.Log4j2;
@@ -18,6 +20,9 @@ public class OrderServiceImpl implements OrderService{
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private PaymentService paymentService;
 
     @Override
     public long placeOrder(OrderRequest orderRequest) {
@@ -37,6 +42,25 @@ public class OrderServiceImpl implements OrderService{
                 .build();
 
         order = orderRepository.save(order);
+
+        log.info("Calling Payment Service to comlete the payments");
+        PaymentRequest paymentRequest = PaymentRequest.builder()
+                .orderId(order.getId())
+                .paymentMode(orderRequest.getPaymentMode())
+                .amount(orderRequest.getTotalAmount())
+                .build();
+        String orderStatus = null;
+                try{
+                    paymentService.doPayment(paymentRequest);
+                    log.info("Payment done Succesfully , changing the order status to SUCCESS");
+                    orderStatus = "PLACED";
+                }
+                catch (Exception e){
+                    log.error("Error occured in payment, Changing order status to PAYMENT FAILED");
+                    orderStatus = "PAYMENT_FAILED";
+                }
+                order.setOrderStatus(orderStatus);
+                orderRepository.save(order);
         log.info("Order Placed successfully with  Order Id: {}" , order.getId());
         return order.getId();
 
