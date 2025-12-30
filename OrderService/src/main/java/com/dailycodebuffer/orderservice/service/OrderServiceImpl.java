@@ -5,6 +5,7 @@ import com.dailycodebuffer.orderservice.exception.CustomException;
 import com.dailycodebuffer.orderservice.external.client.PaymentService;
 import com.dailycodebuffer.orderservice.external.client.ProductService;
 import com.dailycodebuffer.orderservice.external.request.PaymentRequest;
+import com.dailycodebuffer.orderservice.external.response.PaymentResponse;
 import com.dailycodebuffer.orderservice.model.OrderRequest;
 import com.dailycodebuffer.orderservice.model.OrderResponse;
 import com.dailycodebuffer.orderservice.model.ProductResponse;
@@ -86,19 +87,30 @@ public class OrderServiceImpl implements OrderService{
         log.info("Invoking Product service to fetch the product for id : "+ order.getProductId());
         ProductResponse productResponse =   restTemplate.getForObject("http://PRODUCT-SERVICE/product/" + order.getProductId(),
                 ProductResponse.class);
+
+        log.info("Getting payment information from payment Service");
+        PaymentResponse paymentResponse = restTemplate.getForObject("http://PAYMENT-SERVICE/payment/order/" + order.getId(), PaymentResponse.class);
         OrderResponse.ProductDetails productDetails = OrderResponse.ProductDetails.builder()
                 .productName(productResponse.getProductName())
                 .productId(productResponse.getProductId())
-
                 .build();
+
+
+        OrderResponse.PaymentDetails  paymentDetails = OrderResponse.PaymentDetails.builder()
+                .paymentId(paymentResponse.getPaymentId())
+                .paymentStatus(paymentResponse.getStatus())
+                .paymentDate(paymentResponse.getPaymentDate())
+                .paymentMode(paymentResponse.getPaymentMode())
+                .build();
+
         OrderResponse orderResponse = OrderResponse.builder()
                 .orderId(order.getId())
                 .orderStatus(order.getOrderStatus())
                 .amount(order.getAmount())
                 .orderDate(order.getOrderDate())
                 .productDetails(productDetails)
+                .paymentDetails(paymentDetails)
                 .build();
-
         return orderResponse;
     }
 }
