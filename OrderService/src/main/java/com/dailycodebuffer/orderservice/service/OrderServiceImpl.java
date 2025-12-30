@@ -1,10 +1,12 @@
 package com.dailycodebuffer.orderservice.service;
 
 import com.dailycodebuffer.orderservice.entity.Order;
+import com.dailycodebuffer.orderservice.exception.CustomException;
 import com.dailycodebuffer.orderservice.external.client.PaymentService;
 import com.dailycodebuffer.orderservice.external.client.ProductService;
 import com.dailycodebuffer.orderservice.external.request.PaymentRequest;
 import com.dailycodebuffer.orderservice.model.OrderRequest;
+import com.dailycodebuffer.orderservice.model.OrderResponse;
 import com.dailycodebuffer.orderservice.repository.OrderRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,4 +67,23 @@ public class OrderServiceImpl implements OrderService{
         return order.getId();
 
   }
+
+    @Override
+    public OrderResponse getOrderDetails(Long orderId) {
+        log.info("GET order Details for order id : {}" , orderId);
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new CustomException(
+                        "Order not found for the order Id : " + orderId,
+                        "NOT_FOUND",
+                        404
+                ));
+        OrderResponse orderResponse = OrderResponse.builder()
+                .orderId(order.getId())
+                .orderStatus(order.getOrderStatus())
+                .amount(order.getAmount())
+                .orderDate(order.getOrderDate())
+                .build();
+
+        return orderResponse;
+    }
 }
